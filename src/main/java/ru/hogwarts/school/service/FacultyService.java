@@ -1,48 +1,60 @@
 package ru.hogwarts.school.service;
 
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
+import ru.hogwarts.school.exception.FacultyNotFoundException;
 import ru.hogwarts.school.model.Faculty;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Objects;
+
+import java.util.*;
+import java.util.stream.Collectors;
 
 @Service
     public class FacultyService {
 
-    private final HashMap<Long, Faculty> faculties = new HashMap<>();
-    private long count = 0;
+    private final Map<Long, Faculty> faculties = new HashMap<>();
+    private long idGenerator = 1;
 
-    public Faculty addFaculty(Faculty faculty) {
-        faculty.setId(count++);
-        faculties.put(faculty.getId(), faculty);
+    public Faculty createFaculty(Faculty faculty) {
+        faculty.setId(idGenerator++);
+        faculties.put(idGenerator, faculty);
         return faculty;
     }
 
-    public Faculty findFaculty(long id) {
-        return faculties.get(id);
-    }
-
-    public Faculty editFaculty(Faculty faculty) {
-        if (!faculties.containsKey(faculty.getId())) {
-            return null;
+    public Faculty updateFaculty(long id, Faculty faculty) {
+        if (faculties.containsKey(id)) {
+            Faculty oldFaculty = faculties.get(id);
+            oldFaculty.setName(faculty.getName());
+            oldFaculty.setColor(faculty.getColor());
+            faculties.replace(id, oldFaculty);
+            return oldFaculty;
+        } else {
+            throw new FacultyNotFoundException(id);
         }
-        faculties.put(faculty.getId(), faculty);
-        return faculty;
     }
 
-    public void deleteFaculty(long id) {
-        faculties.remove(id);
-    }
-
-    public Collection<Faculty> findByColor(String color) {
-        ArrayList<Faculty> result = new ArrayList<>();
-        for (Faculty faculty : faculties.values()) {
-            if (Objects.equals(faculty.getColor(), color)) {
-                result.add(faculty);
-            }
+    public Faculty getFaculty(long id) {
+        if (faculties.containsKey(id)) {
+            return faculties.get(id);
+        } else {
+            throw new FacultyNotFoundException(id);
         }
-        return result;
+    }
+
+    public Faculty deleteFaculty(long id) {
+        if (faculties.containsKey(id)) {
+            return faculties.remove(id);
+        } else {
+            throw new FacultyNotFoundException(id);
+        }
+    }
+
+    public List<Faculty> findAllFaculty(@Nullable String color) {
+        return Optional.ofNullable(color)
+                .map(c ->
+                        faculties.values().stream()
+                                .filter(faculty -> faculty.getColor().equals(c)))
+                .orElseGet(() -> faculties.values().stream())
+                .collect(Collectors.toList());
     }
 }
