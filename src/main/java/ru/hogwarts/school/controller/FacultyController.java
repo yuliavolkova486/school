@@ -1,7 +1,8 @@
 package ru.hogwarts.school.controller;
 
 import org.springframework.web.bind.annotation.*;
-import ru.hogwarts.school.model.Faculty;
+import ru.hogwarts.school.dto.FacultyDtoIn;
+import ru.hogwarts.school.dto.FacultyDtoOut;
 import ru.hogwarts.school.service.FacultyService;
 import java.util.List;
 
@@ -14,30 +15,28 @@ public class FacultyController {
     public FacultyController(FacultyService facultyService) {
         this.facultyService = facultyService;
     }
+    @PostMapping
+    public FacultyDtoOut create(@RequestBody FacultyDtoIn facultyDtoIn) {
+        return facultyService.create(facultyDtoIn);
+    }
+    @PutMapping("/{id}")
+    public FacultyDtoOut update(@PathVariable("id") long id, @RequestBody FacultyDtoIn facultyDtoIn ) {
+        return facultyService.update(id, facultyDtoIn);
+    }
+
 
     @GetMapping("/{id}")
-    public Faculty getFaculty(@PathVariable("id") long id) {
-        return facultyService.getFaculty(id);
-    }
-
-    @GetMapping
-    public List<Faculty> findAllFaculty(@RequestParam(required = false) String color) {
-        return facultyService.findAllFaculty(color);
-    }
-
-
-    @PostMapping
-    public Faculty createFaculty(@RequestBody Faculty faculty) {
-        return facultyService.createFaculty(faculty);
-    }
-
-    @PutMapping("/{id}")
-    public Faculty updateFaculty(@PathVariable("id") long id, @RequestBody Faculty faculty) {
-        return facultyService.updateFaculty(id, faculty);
-    }
+    public FacultyDtoOut get(@PathVariable("id") long id) {return facultyService.get(id); }
 
     @DeleteMapping("/{id}")
-    public Faculty deleteFaculty(@PathVariable("id") long id) {
-        return facultyService.deleteFaculty(id);
+    public FacultyDtoOut delete(@PathVariable("id") long id) {
+        return facultyService.delete(id);
+    }
+
+
+    @GetMapping
+    List<FacultyDtoOut> findAll (@RequestParam (required = false) String color) {
+    return facultyService.findAll(color);
     }
 }
+
