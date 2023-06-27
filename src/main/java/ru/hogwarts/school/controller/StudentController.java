@@ -40,4 +40,8 @@ public class StudentController {
     public StudentDtoOut delete(@PathVariable("id") long id) {
         return studentService.delete(id);
     }
+    @GetMapping("/filter")
+    public List<StudentDtoOut> findByAgeBetween(@RequestParam int ageFrom, @RequestParam int ageTo) {
+        return studentService.findByAgeBetween(ageFrom, ageTo);
+    }
 }

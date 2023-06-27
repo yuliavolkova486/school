@@ -7,10 +7,12 @@ import ru.hogwarts.school.dto.StudentDtoIn;
 import ru.hogwarts.school.dto.StudentDtoOut;
 
 import ru.hogwarts.school.entity.Student;
+import ru.hogwarts.school.exception.FacultyNotFoundException;
 import ru.hogwarts.school.exception.StudentNotFoundException;
 
 import ru.hogwarts.school.mapper.StudentMapper;
 
+import ru.hogwarts.school.repository.FacultyRepository;
 import ru.hogwarts.school.repository.StudentRepository;
 
 import java.util.*;
@@ -19,10 +21,12 @@ import java.util.stream.Collectors;
 @Service
 public class StudentService {
     private final StudentRepository studentRepository;
+    private final FacultyRepository facultyRepository;
     private final StudentMapper studentMapper;
 
-    public StudentService(StudentRepository studentRepository, StudentMapper studentMapper) {
+    public StudentService(StudentRepository studentRepository, FacultyRepository facultyRepository, StudentMapper studentMapper) {
         this.studentRepository = studentRepository;
+        this.facultyRepository = facultyRepository;
         this.studentMapper = studentMapper;
     }
 
@@ -39,6 +43,9 @@ public class StudentService {
                 .map(oldStudent -> {
                     oldStudent.setAge(studentDtoIn.getAge());
                     oldStudent.setName(studentDtoIn.getName());
+                    Optional.ofNullable(studentDtoIn.getFacultyId())
+                            .ifPresent(facultyId -> oldStudent.setFaculty(facultyRepository.findById(facultyId)
+                                    .orElseThrow(() -> new FacultyNotFoundException(facultyId))));
                     return studentMapper.toDto(studentRepository.save(oldStudent));
                 })
                 .orElseThrow(() -> new StudentNotFoundException(id));
@@ -62,6 +69,12 @@ public class StudentService {
             return Optional.ofNullable(age)
                     .map(studentRepository::findAllByAge)
                     .orElseGet(studentRepository::findAll).stream()
+                    .map(studentMapper::toDto)
+                    .collect(Collectors.toList());
+        }
+
+        public List<StudentDtoOut> findByAgeBetween(int ageFrom, int ageTo) {
+            return studentRepository.findAllByAgeBetween(ageFrom, ageTo).stream()
                     .map(studentMapper::toDto)
                     .collect(Collectors.toList());
         }

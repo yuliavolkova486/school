@@ -1,6 +1,8 @@
 package ru.hogwarts.school.entity;
 
 import javax.persistence.*;
+import java.util.List;
+
 @Entity
 @Table(name = "faculties")
 public class Faculty {
@@ -8,6 +10,8 @@ public class Faculty {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
     private String name, color;
+    @OneToMany(mappedBy = "faculty")
+    private List<Student> students;
 
     public Faculty(long id, String name, String color) {
         this.id = id;
@@ -41,4 +45,11 @@ public class Faculty {
         this.color = color;
     }
 
+    public List<Student> getStudents() {
+        return students;
+    }
+
+    public void setStudents(List<Student> students) {
+        this.students = students;
+    }
 }
