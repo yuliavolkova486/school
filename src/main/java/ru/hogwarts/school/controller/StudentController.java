@@ -1,5 +1,7 @@
 package ru.hogwarts.school.controller;
+import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import ru.hogwarts.school.dto.StudentDtoIn;
 import ru.hogwarts.school.dto.StudentDtoOut;
 import ru.hogwarts.school.service.StudentService;
@@ -43,5 +45,9 @@ public class StudentController {
     @GetMapping("/filter")
     public List<StudentDtoOut> findByAgeBetween(@RequestParam int ageFrom, @RequestParam int ageTo) {
         return studentService.findByAgeBetween(ageFrom, ageTo);
+    }
+    @PatchMapping(value = "/{id}/avatar", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public StudentDtoOut uploadAvatar(@PathVariable long id, @RequestPart("avatar") MultipartFile multipartFile) {
+        return studentService.uploadAvatar(id, multipartFile);
     }
 }
